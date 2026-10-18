@@ -1,0 +1,31 @@
+spring:
+  main:
+    lazy-initialization: true
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
+  modulith:
+    events:
+      jdbc-schema-initialization-enabled: true
+  datasource:
+    url: jdbc:h2:mem:bandhub_db;DB_CLOSE_DELAY=-1;INIT=CREATE SCHEMA IF NOT EXISTS schema_auth\;CREATE SCHEMA IF NOT EXISTS schema_users\;CREATE SCHEMA IF NOT EXISTS schema_social\;CREATE SCHEMA IF NOT EXISTS schema_marketplace\;CREATE SCHEMA IF NOT EXISTS schema_events\;CREATE SCHEMA IF NOT EXISTS schema_library\;CREATE SCHEMA IF NOT EXISTS schema_collab\;CREATE SCHEMA IF NOT EXISTS schema_chat\;CREATE SCHEMA IF NOT EXISTS schema_bands\;CREATE SCHEMA IF NOT EXISTS schema_agenda\;CREATE SCHEMA IF NOT EXISTS schema_admin\;CREATE SCHEMA IF NOT EXISTS schema_academy
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  # Redis deshabilitado en local (excluido via autoconfigure.exclude)
+
+jwt:
+  secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+  expiration-ms: 900000
+  refresh-expiration-days: 7

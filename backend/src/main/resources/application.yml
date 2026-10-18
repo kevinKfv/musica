@@ -1,0 +1,31 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: BandHub
+  datasource:
+    url: jdbc:postgresql://localhost:5432/bandhub_db
+    username: bandhub_user
+    password: bandhub_password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  modulith:
+    events:
+      jdbc-schema-initialization-enabled: true
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+jwt:
+  secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+  expiration-ms: 900000 # 15 minutes
+  refresh-expiration-days: 7
