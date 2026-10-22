@@ -28,8 +28,8 @@ export interface PostDTO {
     score: number;
     commentCount: number;
     createdAt: string;
-    media: PostMediaDTO[];
-    comments: CommentDTO[];
+    media?: PostMediaDTO[];
+    comments?: CommentDTO[];
 }
 
 export interface CreatePostRequest {
@@ -45,33 +45,33 @@ export const socialApi = {
     getFeed: async (category?: string, sort: string = 'new'): Promise<PostDTO[]> => {
         const params = new URLSearchParams({ sort });
         if (category && category !== 'all') params.append('category', category);
-        const response = await apiClient.get(`/api/v1/social/feed?${params}`);
+        const response = await apiClient.get<PostDTO[]>(`/social/feed?${params}`);
         return response.data;
     },
 
     getPost: async (postId: string): Promise<PostDTO> => {
-        const response = await apiClient.get(`/api/v1/social/posts/${postId}`);
+        const response = await apiClient.get<PostDTO>(`/social/posts/${postId}`);
         return response.data;
     },
 
     createPost: async (request: CreatePostRequest): Promise<PostDTO> => {
-        const response = await apiClient.post('/api/v1/social/posts', request);
+        const response = await apiClient.post<PostDTO>('/social/posts', request);
         return response.data;
     },
 
     addComment: async (postId: string, content: string): Promise<void> => {
-        await apiClient.post(`/api/v1/social/posts/${postId}/comments`, { content });
+        await apiClient.post(`/social/posts/${postId}/comments`, { content });
     },
 
     upvote: async (postId: string): Promise<void> => {
-        await apiClient.post(`/api/v1/social/posts/${postId}/upvote`);
+        await apiClient.post(`/social/posts/${postId}/upvote`);
     },
 
     downvote: async (postId: string): Promise<void> => {
-        await apiClient.post(`/api/v1/social/posts/${postId}/downvote`);
+        await apiClient.post(`/social/posts/${postId}/downvote`);
     },
 
     followUser: async (targetId: string): Promise<void> => {
-        await apiClient.post(`/api/v1/social/follow/${targetId}`);
+        await apiClient.post(`/social/follow/${targetId}`);
     }
 };

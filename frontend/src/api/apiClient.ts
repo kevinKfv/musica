@@ -1,8 +1,13 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/useAuthStore';
 
+// En dev: Vite proxea /api → http://backend:8080
+// En prod: nginx proxea /api → http://backend:8080
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1';
+
+
 export const apiClient = axios.create({
-  baseURL: 'http://localhost:8080/api/v1',
+  baseURL: API_BASE_URL,
   withCredentials: true, // Important for sending HttpOnly cookies
 });
 
@@ -31,7 +36,7 @@ apiClient.interceptors.response.use(
       try {
         // Attempt to refresh token using the HttpOnly cookie
         const response = await axios.post(
-          'http://localhost:8080/api/v1/auth/refresh-token',
+          `${API_BASE_URL}/auth/refresh-token`,
           {},
           { withCredentials: true }
         );

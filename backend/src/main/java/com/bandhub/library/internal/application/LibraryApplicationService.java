@@ -30,6 +30,10 @@ public class LibraryApplicationService {
         this.eventPublisher = eventPublisher;
     }
 
+    public List<Song> getAllSongs() {
+        return songRepository.findByDeletedAtIsNull();
+    }
+
     public List<Song> getSongsByBand(UUID bandId) {
         return songRepository.findByBandIdAndDeletedAtIsNull(bandId);
     }

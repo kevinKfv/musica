@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Mail, Lock, UserPlus, ArrowRight } from 'lucide-react';
+import { Mail, Lock, Music2, AlertCircle, User } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { apiClient } from '../../api/apiClient';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -20,66 +20,105 @@ export default function RegisterPage() {
       setAuth({ email: response.data.email }, response.data.accessToken);
       navigate('/');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Error al registrar la cuenta. Es posible que el correo ya esté en uso.');
+      if (!err.response) {
+        setError('No se pudo conectar con el servidor. Verificá que el backend esté iniciado.');
+      } else {
+        setError(
+          err.response?.data?.message ||
+          'No se pudo crear la cuenta. Es posible que el correo ya esté en uso.'
+        );
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-neutral-900 flex items-center justify-center px-4">
-      <div className="bg-neutral-800 p-8 rounded-2xl shadow-xl w-full max-w-md border border-neutral-700/50">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">BandHub</h1>
-          <p className="text-neutral-400 mt-2">Crea tu cuenta gratuita</p>
+    <div className="auth-bg">
+      <div className="auth-card">
+        {/* Logo */}
+        <div className="auth-logo">
+          <div className="auth-logo-icon">
+            <Music2 size={28} color="white" />
+          </div>
+          <h1 className="auth-logo-title">BandHub</h1>
+          <p className="auth-logo-subtitle">Creá tu cuenta gratis</p>
         </div>
 
+        {/* Error */}
         {error && (
-          <div className="bg-red-500/10 border border-red-500/50 text-red-500 p-3 rounded-lg mb-6 text-sm">
+          <div className="alert-error">
+            <AlertCircle size={16} style={{ flexShrink: 0, marginTop: 1 }} />
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-neutral-300 mb-1">Correo Electrónico</label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
-              <input 
-                type="email" 
-                {...register('email', { required: true })}
-                className="w-full bg-neutral-900 border border-neutral-700 rounded-lg py-2.5 pl-10 pr-4 text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-colors"
+        {/* Form */}
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="form-group">
+            <label className="form-label">Nombre de usuario</label>
+            <div className="form-input-wrapper">
+              <User size={16} className="form-input-icon" />
+              <input
+                id="register-username"
+                type="text"
+                autoComplete="username"
+                placeholder="tu nombre artístico"
+                className="form-input"
+                {...register('username', { required: true })}
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Correo electrónico</label>
+            <div className="form-input-wrapper">
+              <Mail size={16} className="form-input-icon" />
+              <input
+                id="register-email"
+                type="email"
+                autoComplete="email"
                 placeholder="tu@email.com"
+                className="form-input"
+                {...register('email', { required: true })}
               />
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-neutral-300 mb-1">Contraseña</label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
-              <input 
-                type="password" 
-                {...register('password', { required: true })}
-                className="w-full bg-neutral-900 border border-neutral-700 rounded-lg py-2.5 pl-10 pr-4 text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-colors"
-                placeholder="••••••••"
+          <div className="form-group">
+            <label className="form-label">Contraseña</label>
+            <div className="form-input-wrapper">
+              <Lock size={16} className="form-input-icon" />
+              <input
+                id="register-password"
+                type="password"
+                autoComplete="new-password"
+                placeholder="Mínimo 8 caracteres"
+                className="form-input"
+                {...register('password', { required: true, minLength: 8 })}
               />
             </div>
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            id="register-submit"
+            type="submit"
             disabled={loading}
-            className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors"
+            className="btn-primary"
           >
-            {loading ? 'Creando cuenta...' : <><UserPlus className="w-5 h-5"/> Registrarme</>}
+            {loading
+              ? <><span className="spinner" /> Creando cuenta...</>
+              : 'Crear cuenta gratuita'
+            }
           </button>
         </form>
 
-        <p className="text-center text-neutral-400 mt-6 text-sm">
-          ¿Ya tienes una cuenta? <Link to="/login" className="text-purple-400 hover:text-purple-300 inline-flex items-center gap-1">Inicia sesión <ArrowRight className="w-3 h-3"/></Link>
-        </p>
+        <div className="auth-footer-link">
+          ¿Ya tenés cuenta?{' '}
+          <Link to="/login">Iniciá sesión</Link>
+        </div>
       </div>
     </div>
   );
 }
+

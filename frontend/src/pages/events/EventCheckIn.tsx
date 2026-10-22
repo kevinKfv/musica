@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { eventsApi, Ticket } from '../../api/eventsApi';
 import { useNavigate } from 'react-router-dom';
-import { ScanLine, CheckCircle, XCircle } from 'lucide-react';
+import { ScanLine, CheckCircle, XCircle, ArrowLeft } from 'lucide-react';
+import { Card } from '../../components/ui/Card';
+import { Button } from '../../components/ui/Button';
 
 export const EventCheckIn = () => {
   const navigate = useNavigate();
@@ -20,12 +22,12 @@ export const EventCheckIn = () => {
         message: '¡Ticket validado con éxito!',
         ticket
       });
-      setToken(''); // clear for next scan
+      setToken('');
     } catch (error: any) {
       console.error('Error checking in:', error);
       setResult({
         success: false,
-        message: error.response?.data?.message || 'Error al validar ticket. QR inválido o ya usado.'
+        message: error.response?.data?.message || 'Error al validar ticket. QR inválido o ya utilizado.'
       });
     } finally {
       setLoading(false);
@@ -33,69 +35,116 @@ export const EventCheckIn = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 p-8 flex flex-col items-center">
-      <div className="w-full max-w-xl">
-        <button 
-          onClick={() => navigate('/events')}
-          className="text-orange-400 hover:text-orange-300 mb-6 flex items-center gap-2 transition-colors"
-        >
-          &larr; Volver a Eventos
-        </button>
+    <div style={{ maxWidth: '640px', margin: '0 auto', width: '100%', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <Button 
+        variant="ghost"
+        onClick={() => navigate('/events')}
+        style={{ alignSelf: 'flex-start', color: 'var(--bh-text-secondary, #a1a1aa)', paddingLeft: 0 }}
+      >
+        <ArrowLeft style={{ width: '16px', height: '16px', marginRight: '6px' }} />
+        Volver a Eventos
+      </Button>
 
-        <div className="bg-slate-800 rounded-3xl p-8 border border-slate-700 shadow-2xl text-center">
-          <div className="flex justify-center mb-6">
-            <div className="p-4 bg-orange-500/20 rounded-full">
-              <ScanLine className="w-12 h-12 text-orange-400" />
-            </div>
-          </div>
-          <h2 className="text-3xl font-extrabold text-white mb-2">
-            Módulo de Check-in
-          </h2>
-          <p className="text-slate-400 mb-8">
-            Escanea el código QR del asistente (simulado pegando el Token).
-          </p>
-
-          <form onSubmit={handleCheckIn} className="space-y-4 mb-8">
-            <input 
-              type="text"
-              required
-              placeholder="Ingresa el QR Token (UUID)"
-              className="w-full bg-slate-900 border border-slate-600 rounded-xl px-6 py-4 text-center text-lg font-mono text-white focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50"
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-            />
-            <button 
-              type="submit"
-              disabled={loading || !token}
-              className="w-full px-6 py-4 bg-gradient-to-r from-orange-500 to-rose-600 hover:from-orange-600 hover:to-rose-700 text-white font-bold rounded-xl transition-all shadow-[0_0_15px_rgba(249,115,22,0.4)] disabled:opacity-50 text-lg"
-            >
-              {loading ? 'Validando...' : 'Validar Entrada'}
-            </button>
-          </form>
-
-          {result && (
-            <div className={`p-6 rounded-2xl border ${result.success ? 'bg-emerald-900/30 border-emerald-500' : 'bg-red-900/30 border-red-500'}`}>
-              <div className="flex items-center justify-center gap-3 mb-2">
-                {result.success ? (
-                  <CheckCircle className="w-8 h-8 text-emerald-400" />
-                ) : (
-                  <XCircle className="w-8 h-8 text-red-400" />
-                )}
-                <h3 className={`text-2xl font-bold ${result.success ? 'text-emerald-400' : 'text-red-400'}`}>
-                  {result.message}
-                </h3>
-              </div>
-              
-              {result.success && result.ticket && (
-                <div className="text-slate-300 mt-4 text-sm font-mono bg-slate-900 p-4 rounded-lg">
-                  <p>Estado: <span className="text-emerald-400 font-bold">{result.ticket.status}</span></p>
-                  <p>ID Ticket: {result.ticket.id}</p>
-                </div>
-              )}
-            </div>
-          )}
+      <Card style={{
+        background: 'var(--bh-bg-surface, #12121a)',
+        border: '1px solid var(--bh-border-subtle, rgba(255, 255, 255, 0.08))',
+        borderRadius: '1.25rem',
+        padding: '2.5rem 2rem',
+        textAlign: 'center',
+        boxShadow: '0 12px 32px rgba(0,0,0,0.3)',
+      }}>
+        <div style={{
+          width: '64px',
+          height: '64px',
+          borderRadius: '16px',
+          background: 'rgba(249, 115, 22, 0.15)',
+          border: '1px solid rgba(249, 115, 22, 0.3)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          margin: '0 auto 1.5rem'
+        }}>
+          <ScanLine style={{ width: '32px', height: '32px', color: '#f97316' }} />
         </div>
-      </div>
+
+        <h2 style={{ fontFamily: 'var(--bh-font-display, Syne)', fontSize: '1.75rem', fontWeight: 800, color: '#fff', marginBottom: '0.5rem' }}>
+          Módulo de Check-in
+        </h2>
+        <p style={{ color: 'var(--bh-text-secondary, #a1a1aa)', fontSize: '0.95rem', marginBottom: '2rem' }}>
+          Ingresa o escanea el token QR del asistente para validar su acceso.
+        </p>
+
+        <form onSubmit={handleCheckIn} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem' }}>
+          <input 
+            type="text"
+            required
+            placeholder="Ingresa el QR Token (UUID)"
+            value={token}
+            onChange={(e) => setToken(e.target.value)}
+            style={{
+              width: '100%',
+              background: 'rgba(255, 255, 255, 0.04)',
+              border: '1px solid var(--bh-border-subtle, rgba(255, 255, 255, 0.1))',
+              borderRadius: '0.75rem',
+              padding: '1rem 1.25rem',
+              textAlign: 'center',
+              fontSize: '1rem',
+              fontFamily: 'monospace',
+              color: '#fff',
+              outline: 'none',
+              transition: 'border-color 0.2s',
+            }}
+            onFocus={(e) => (e.target.style.borderColor = 'var(--bh-primary, #6366f1)')}
+            onBlur={(e) => (e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)')}
+          />
+
+          <Button 
+            type="submit"
+            variant="primary"
+            disabled={loading || !token}
+            style={{ width: '100%', padding: '0.875rem', fontSize: '1rem', fontWeight: 700 }}
+          >
+            {loading ? 'Validando entrada...' : 'Validar Entrada'}
+          </Button>
+        </form>
+
+        {result && (
+          <div style={{
+            padding: '1.25rem',
+            borderRadius: '0.75rem',
+            border: `1px solid ${result.success ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
+            background: result.success ? 'rgba(16, 185, 129, 0.08)' : 'rgba(239, 68, 68, 0.08)',
+            textAlign: 'left'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+              {result.success ? (
+                <CheckCircle style={{ width: '22px', height: '22px', color: '#10b981', flexShrink: 0 }} />
+              ) : (
+                <XCircle style={{ width: '22px', height: '22px', color: '#ef4444', flexShrink: 0 }} />
+              )}
+              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: result.success ? '#10b981' : '#ef4444', margin: 0 }}>
+                {result.message}
+              </h3>
+            </div>
+            
+            {result.success && result.ticket && (
+              <div style={{
+                marginTop: '0.75rem',
+                fontSize: '0.85rem',
+                fontFamily: 'monospace',
+                background: 'rgba(0, 0, 0, 0.3)',
+                padding: '0.75rem',
+                borderRadius: '0.5rem',
+                color: 'var(--bh-text-secondary, #a1a1aa)',
+                lineHeight: 1.6
+              }}>
+                <div>Estado: <span style={{ color: '#10b981', fontWeight: 700 }}>{result.ticket.status}</span></div>
+                <div>ID Ticket: {result.ticket.id}</div>
+              </div>
+            )}
+          </div>
+        )}
+      </Card>
     </div>
   );
 };

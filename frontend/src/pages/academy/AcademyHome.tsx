@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { academyApi, Course } from '../../api/academyApi';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, DollarSign } from 'lucide-react';
+import { BookOpen, DollarSign, Plus, GraduationCap } from 'lucide-react';
+import { Button, Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../components/ui';
 
 export const AcademyHome = () => {
   const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -13,69 +15,161 @@ export const AcademyHome = () => {
 
   const fetchCourses = async () => {
     try {
+      setLoading(true);
       const data = await academyApi.getAllCourses();
       setCourses(data);
     } catch (error) {
       console.error('Error fetching courses:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 p-8">
-      <div className="max-w-7xl mx-auto">
-        <header className="flex justify-between items-center mb-12 border-b border-slate-800 pb-6">
-          <div>
-            <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600 mb-2">
+    <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
+      {/* Header */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '1rem',
+        }}
+      >
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+            <span
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '8px',
+                background: 'rgba(59, 130, 246, 0.15)',
+                color: '#3b82f6',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <GraduationCap size={18} />
+            </span>
+            <h1
+              style={{
+                fontFamily: 'var(--bh-font-display, "Syne", sans-serif)',
+                fontSize: '1.75rem',
+                fontWeight: 800,
+                color: '#ffffff',
+                margin: 0,
+              }}
+            >
               Academia Musical
             </h1>
-            <p className="text-slate-400 text-lg">Aprende nuevas habilidades con nuestros cursos interactivos.</p>
+          </div>
+          <p style={{ margin: 0, color: 'var(--bh-text-secondary, #a1a1aa)', fontSize: '0.875rem' }}>
+            Masterclasses, cursos técnicos y lecciones interactivas para músicos y productores.
+          </p>
+        </div>
+
+        <Button
+          onClick={() => navigate('/academy/create')}
+          icon={<Plus size={16} />}
+        >
+          Publicar Curso
+        </Button>
+      </div>
+
+      {/* Courses Grid */}
+      {loading ? (
+        <Card style={{ padding: '3rem', textAlign: 'center', color: '#a1a1aa' }}>
+          <div className="spinner" style={{ margin: '0 auto 12px' }} />
+          Cargando catálogo de cursos...
+        </Card>
+      ) : courses.length === 0 ? (
+        <Card
+          style={{
+            padding: '3.5rem 2rem',
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '1rem',
+          }}
+        >
+          <div
+            style={{
+              width: '64px',
+              height: '64px',
+              borderRadius: '20px',
+              background: 'rgba(59, 130, 246, 0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#3b82f6',
+            }}
+          >
+            <BookOpen size={32} />
           </div>
           <div>
-            <button 
-              onClick={() => navigate('/academy/create')}
-              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold rounded-full transition-all shadow-[0_0_15px_rgba(59,130,246,0.4)]"
-            >
-              Publicar Curso (Profesor)
-            </button>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#f4f4f5', margin: '0 0 6px' }}>
+              No hay cursos disponibles por el momento
+            </h3>
+            <p style={{ fontSize: '0.875rem', color: '#a1a1aa', margin: 0, maxWidth: '380px' }}>
+              Compartí tus conocimientos como profesor o instructor y creá el primer curso de la academia.
+            </p>
           </div>
-        </header>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {courses.length === 0 ? (
-            <div className="col-span-full text-center text-slate-500 py-12">
-              No hay cursos disponibles por el momento. Sé el primero en crear uno.
-            </div>
-          ) : (
-            courses.map(course => (
-              <div 
-                key={course.id}
-                onClick={() => navigate(`/academy/${course.id}`)}
-                className="group bg-slate-800 rounded-2xl overflow-hidden border border-slate-700 hover:border-blue-500 transition-all cursor-pointer hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(59,130,246,0.2)] flex flex-col"
-              >
-                <div className="h-48 bg-slate-700 bg-[url('https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center" />
-                <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="text-2xl font-bold mb-3 group-hover:text-blue-400 transition-colors">
-                    {course.title}
-                  </h3>
-                  <p className="text-slate-400 line-clamp-3 mb-6 flex-grow">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => navigate('/academy/create')}
+            icon={<Plus size={14} />}
+          >
+            Crear mi primer curso
+          </Button>
+        </Card>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.25rem' }}>
+          {courses.map((course) => (
+            <Card
+              key={course.id}
+              onClick={() => navigate(`/academy/${course.id}`)}
+              style={{
+                cursor: 'pointer',
+                transition: 'transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease',
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                style={{
+                  height: '140px',
+                  background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.3) 0%, rgba(124, 58, 237, 0.3) 100%), url("https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=1000&auto=format&fit=crop")',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
+              />
+              <CardHeader style={{ padding: '1.25rem' }}>
+                <CardTitle style={{ fontSize: '1.125rem' }}>{course.title}</CardTitle>
+                {course.description && (
+                  <CardDescription style={{ marginTop: '6px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                     {course.description}
-                  </p>
-                  <div className="flex justify-between items-center pt-4 border-t border-slate-700">
-                    <div className="flex items-center text-blue-400 font-bold text-xl">
-                      <DollarSign className="w-5 h-5" />
-                      {course.price}
-                    </div>
-                    <div className="flex items-center text-slate-400 text-sm">
-                      <BookOpen className="w-4 h-4 mr-1" />
-                      Ver Curso
-                    </div>
-                  </div>
+                  </CardDescription>
+                )}
+              </CardHeader>
+              <CardContent style={{ padding: '0 1.25rem 1.25rem', marginTop: 'auto', borderTop: '1px solid rgba(255, 255, 255, 0.06)', paddingTop: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontFamily: 'var(--bh-font-display, "Syne", sans-serif)', fontSize: '1.125rem', fontWeight: 800, color: '#38bdf8' }}>
+                    ${course.price}
+                  </span>
+                  <span style={{ fontSize: '0.8125rem', color: '#a78bfa', fontWeight: 600 }}>
+                    Ver lecciones &rarr;
+                  </span>
                 </div>
-              </div>
-            ))
-          )}
+              </CardContent>
+            </Card>
+          ))}
         </div>
-      </div>
+      )}
     </div>
   );
 };

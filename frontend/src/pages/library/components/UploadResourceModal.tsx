@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useLibraryStore } from '../../../store/libraryStore';
+import { X, Upload, FileText, Music } from 'lucide-react';
+import { Button } from '../../../components/ui';
 
 interface UploadResourceModalProps {
   songId: string;
@@ -9,22 +11,21 @@ interface UploadResourceModalProps {
 
 const UploadResourceModal: React.FC<UploadResourceModalProps> = ({ songId, userId, onClose }) => {
   const { addSheetMusic, addAudioTrack } = useLibraryStore();
-  
+
   const [resourceType, setResourceType] = useState<'SHEET' | 'AUDIO'>('SHEET');
   const [file, setFile] = useState<File | null>(null);
-  
-  // Specific fields
+
   const [instrument, setInstrument] = useState('');
   const [formatType, setFormatType] = useState('PDF');
   const [trackType, setTrackType] = useState('BACKING_TRACK');
-  
+
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) {
-      setError("Por favor selecciona un archivo.");
+      setError('Por favor selecciona un archivo.');
       return;
     }
 
@@ -37,7 +38,7 @@ const UploadResourceModal: React.FC<UploadResourceModalProps> = ({ songId, userI
 
     try {
       if (resourceType === 'SHEET') {
-        if (!instrument) throw new Error("Instrumento es requerido");
+        if (!instrument) throw new Error('El instrumento es requerido');
         formData.append('instrument', instrument);
         formData.append('formatType', formatType);
         await addSheetMusic(songId, formData);
@@ -47,100 +48,207 @@ const UploadResourceModal: React.FC<UploadResourceModalProps> = ({ songId, userI
       }
       onClose();
     } catch (err: any) {
-      setError(err.message || "Error al subir el archivo");
+      setError(err.message || 'Error al subir el archivo');
     } finally {
       setUploading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
-        <h2 className="text-2xl font-bold mb-4">Subir Recurso</h2>
-        
-        {error && <div className="bg-red-100 text-red-700 p-2 rounded mb-4">{error}</div>}
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Tipo de Recurso</label>
-            <select 
-              value={resourceType} 
-              onChange={(e) => setResourceType(e.target.value as 'SHEET' | 'AUDIO')}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 border bg-white"
-            >
-              <option value="SHEET">Partitura / Cifrado</option>
-              <option value="AUDIO">Pista de Audio</option>
-            </select>
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 9999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'rgba(0, 0, 0, 0.75)',
+        backdropFilter: 'blur(8px)',
+        padding: '1rem',
+      }}
+    >
+      <div
+        style={{
+          width: '100%',
+          maxWidth: '460px',
+          background: 'var(--bh-bg-surface, #12121a)',
+          border: '1px solid var(--bh-border-subtle, rgba(255, 255, 255, 0.1))',
+          borderRadius: '16px',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
+          overflow: 'hidden',
+          animation: 'fadeInUp 0.2s ease-out',
+        }}
+      >
+        {/* Header */}
+        <div
+          style={{
+            padding: '1.25rem 1.5rem',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <h2
+            style={{
+              fontFamily: 'var(--bh-font-display, "Syne", sans-serif)',
+              fontSize: '1.25rem',
+              fontWeight: 700,
+              color: '#ffffff',
+              margin: 0,
+            }}
+          >
+            Subir Recurso a la Canción
+          </h2>
+          <button
+            onClick={onClose}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#a1a1aa',
+              cursor: 'pointer',
+              padding: '4px',
+              display: 'flex',
+            }}
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {error && (
+          <div
+            style={{
+              margin: '1rem 1.5rem 0',
+              padding: '0.75rem',
+              background: 'rgba(239, 68, 68, 0.15)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              borderRadius: '8px',
+              color: '#f87171',
+              fontSize: '0.8125rem',
+            }}
+          >
+            {error}
           </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Archivo</label>
-            <input 
-              type="file" 
+        )}
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="form-group">
+            <label className="form-label">Tipo de recurso</label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+              <button
+                type="button"
+                onClick={() => setResourceType('SHEET')}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  border: resourceType === 'SHEET' ? '1px solid #7c3aed' : '1px solid rgba(255,255,255,0.1)',
+                  background: resourceType === 'SHEET' ? 'rgba(124, 58, 237, 0.2)' : 'rgba(255,255,255,0.03)',
+                  color: resourceType === 'SHEET' ? '#a78bfa' : '#a1a1aa',
+                  fontWeight: 600,
+                  fontSize: '0.8125rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  cursor: 'pointer',
+                }}
+              >
+                <FileText size={16} /> Partitura
+              </button>
+              <button
+                type="button"
+                onClick={() => setResourceType('AUDIO')}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  border: resourceType === 'AUDIO' ? '1px solid #7c3aed' : '1px solid rgba(255,255,255,0.1)',
+                  background: resourceType === 'AUDIO' ? 'rgba(124, 58, 237, 0.2)' : 'rgba(255,255,255,0.03)',
+                  color: resourceType === 'AUDIO' ? '#a78bfa' : '#a1a1aa',
+                  fontWeight: 600,
+                  fontSize: '0.8125rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  cursor: 'pointer',
+                }}
+              >
+                <Music size={16} /> Pista de Audio
+              </button>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Seleccionar archivo *</label>
+            <input
+              type="file"
               onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)}
-              className="mt-1 block w-full p-2 border rounded"
+              className="form-input"
               required
+              style={{ padding: '6px' }}
             />
           </div>
 
           {resourceType === 'SHEET' ? (
             <>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Instrumento</label>
-                <input 
-                  type="text" 
-                  value={instrument} 
+              <div className="form-group">
+                <label className="form-label">Instrumento asignado *</label>
+                <input
+                  type="text"
+                  value={instrument}
                   onChange={(e) => setInstrument(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 border"
-                  placeholder="Ej. Guitarra, Piano, Batería"
+                  placeholder="Ej. Guitarra Líder, Bajo, Voz..."
+                  className="form-input"
                   required
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Formato</label>
-                <select 
-                  value={formatType} 
+              <div className="form-group">
+                <label className="form-label">Formato</label>
+                <select
+                  value={formatType}
                   onChange={(e) => setFormatType(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 border bg-white"
+                  className="form-input"
+                  style={{ background: 'var(--bh-bg-surface-elevated, #1a1a24)' }}
                 >
-                  <option value="PDF">PDF</option>
-                  <option value="MUSICXML">MusicXML</option>
-                  <option value="CHORD_CHART">Cifrado</option>
+                  <option value="PDF">PDF (Documento)</option>
+                  <option value="MUSICXML">MusicXML (Notación interactiva)</option>
+                  <option value="CHORD_CHART">Cifrado de Acordes</option>
                 </select>
               </div>
             </>
           ) : (
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Tipo de Pista</label>
-              <select 
-                value={trackType} 
+            <div className="form-group">
+              <label className="form-label">Tipo de pista</label>
+              <select
+                value={trackType}
                 onChange={(e) => setTrackType(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 border bg-white"
+                className="form-input"
+                style={{ background: 'var(--bh-bg-surface-elevated, #1a1a24)' }}
               >
-                <option value="BACKING_TRACK">Backing Track</option>
-                <option value="ORIGINAL">Original</option>
-                <option value="STEM">Stem individual</option>
-                <option value="METRONOME">Metrónomo (Click)</option>
+                <option value="BACKING_TRACK">Backing Track (Base rítmica)</option>
+                <option value="ORIGINAL">Grabación original / Demo</option>
+                <option value="STEM">Stem individual (Pista aislada)</option>
+                <option value="METRONOME">Metrónomo / Click track</option>
               </select>
             </div>
           )}
 
-          <div className="mt-6 flex justify-end space-x-3">
-            <button 
-              type="button" 
-              onClick={onClose}
-              disabled={uploading}
-              className="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300"
-            >
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: '0.75rem',
+              marginTop: '0.5rem',
+            }}
+          >
+            <Button variant="ghost" type="button" onClick={onClose} disabled={uploading}>
               Cancelar
-            </button>
-            <button 
-              type="submit"
-              disabled={uploading}
-              className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 flex items-center justify-center"
-            >
-              {uploading ? 'Subiendo...' : 'Subir Archivo'}
-            </button>
+            </Button>
+            <Button type="submit" loading={uploading} icon={<Upload size={14} />}>
+              Subir a la Nube
+            </Button>
           </div>
         </form>
       </div>

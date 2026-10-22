@@ -1,16 +1,22 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Mail, Lock, LogIn, ArrowRight } from 'lucide-react';
+import { Mail, Lock, Music2, AlertCircle } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { apiClient } from '../../api/apiClient';
 import { useAuthStore } from '../../store/useAuthStore';
 
 export default function LoginPage() {
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, setValue } = useForm();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const setAuth = useAuthStore(state => state.setAuth);
   const navigate = useNavigate();
+
+  const handleFillDemo = () => {
+    setValue('email', 'admin@bandhub.com');
+    setValue('password', 'password123');
+    setError(null);
+  };
 
   const onSubmit = async (data: any) => {
     setLoading(true);
@@ -20,66 +26,125 @@ export default function LoginPage() {
       setAuth({ email: response.data.email }, response.data.accessToken);
       navigate('/');
     } catch (err: any) {
-      setError('Credenciales inválidas. Por favor intenta nuevamente.');
+      if (!err.response) {
+        setError('No se pudo conectar con el servidor. Verificá que el backend esté corriendo (puerto 8080).');
+      } else if (err.response.status === 401 || err.response.status === 403) {
+        setError('Credenciales inválidas. Verificá tu correo y contraseña.');
+      } else {
+        setError(err.response?.data?.message || 'Error del servidor al iniciar sesión. Intentá nuevamente.');
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-neutral-900 flex items-center justify-center px-4">
-      <div className="bg-neutral-800 p-8 rounded-2xl shadow-xl w-full max-w-md border border-neutral-700/50">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">BandHub</h1>
-          <p className="text-neutral-400 mt-2">Inicia sesión en tu cuenta</p>
+    <div className="auth-bg">
+      <div className="auth-card">
+        {/* Logo */}
+        <div className="auth-logo">
+          <div className="auth-logo-icon">
+            <Music2 size={28} color="white" />
+          </div>
+          <h1 className="auth-logo-title">BandHub</h1>
+          <p className="auth-logo-subtitle">Tu sistema operativo musical</p>
         </div>
 
+        {/* Error */}
         {error && (
-          <div className="bg-red-500/10 border border-red-500/50 text-red-500 p-3 rounded-lg mb-6 text-sm">
+          <div className="alert-error">
+            <AlertCircle size={16} style={{ flexShrink: 0, marginTop: 1 }} />
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-neutral-300 mb-1">Correo Electrónico</label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
-              <input 
-                type="email" 
-                {...register('email', { required: true })}
-                className="w-full bg-neutral-900 border border-neutral-700 rounded-lg py-2.5 pl-10 pr-4 text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-colors"
+        {/* Form */}
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="form-group">
+            <label className="form-label">Correo electrónico</label>
+            <div className="form-input-wrapper">
+              <Mail size={16} className="form-input-icon" />
+              <input
+                id="login-email"
+                type="email"
+                autoComplete="email"
                 placeholder="tu@email.com"
+                className="form-input"
+                {...register('email', { required: true })}
               />
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-neutral-300 mb-1">Contraseña</label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
-              <input 
-                type="password" 
-                {...register('password', { required: true })}
-                className="w-full bg-neutral-900 border border-neutral-700 rounded-lg py-2.5 pl-10 pr-4 text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-colors"
+          <div className="form-group">
+            <label className="form-label">Contraseña</label>
+            <div className="form-input-wrapper">
+              <Lock size={16} className="form-input-icon" />
+              <input
+                id="login-password"
+                type="password"
+                autoComplete="current-password"
                 placeholder="••••••••"
+                className="form-input"
+                {...register('password', { required: true })}
               />
             </div>
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            id="login-submit"
+            type="submit"
             disabled={loading}
-            className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors"
+            className="btn-primary"
           >
-            {loading ? 'Iniciando...' : <><LogIn className="w-5 h-5"/> Entrar</>}
+            {loading
+              ? <><span className="spinner" /> Ingresando...</>
+              : 'Iniciar sesión'
+            }
           </button>
         </form>
 
-        <p className="text-center text-neutral-400 mt-6 text-sm">
-          ¿No tienes una cuenta? <Link to="/register" className="text-purple-400 hover:text-purple-300 inline-flex items-center gap-1">Regístrate <ArrowRight className="w-3 h-3"/></Link>
-        </p>
+        {/* Demo credentials helper */}
+        <div style={{
+          marginTop: '1.25rem',
+          padding: '0.75rem 1rem',
+          background: 'rgba(255, 255, 255, 0.03)',
+          border: '1px dashed rgba(255, 255, 255, 0.12)',
+          borderRadius: 'var(--bh-radius-md, 10px)',
+          fontSize: '0.8rem',
+          color: 'var(--bh-text-muted, #71717a)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.35rem',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontWeight: 600, color: 'var(--bh-text-secondary, #a1a1aa)' }}>⚡ Cuenta Demo</span>
+            <button
+              type="button"
+              onClick={handleFillDemo}
+              style={{
+                background: 'rgba(124, 58, 237, 0.2)',
+                color: '#a78bfa',
+                border: '1px solid rgba(124, 58, 237, 0.35)',
+                borderRadius: '6px',
+                padding: '2px 8px',
+                fontSize: '0.75rem',
+                cursor: 'pointer',
+                fontWeight: 600,
+              }}
+            >
+              Cargar demo
+            </button>
+          </div>
+          <div>Usuario: <code style={{ color: '#e4e4e7' }}>admin@bandhub.com</code></div>
+          <div>Clave: <code style={{ color: '#e4e4e7' }}>password123</code></div>
+        </div>
+
+        <div className="auth-footer-link">
+          ¿No tenés cuenta?{' '}
+          <Link to="/register">Registrate gratis</Link>
+        </div>
       </div>
     </div>
   );
 }
+

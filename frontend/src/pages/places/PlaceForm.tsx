@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { useForm } from 'react-form-hook'; // Or whatever they use, wait they use react-hook-form
 import { useForm as useHookForm } from 'react-hook-form';
 import { placesApi, CreatePlaceRequest } from '../../api/placesApi';
+import { Button } from '../../components/ui';
+import { MapPin, X } from 'lucide-react';
 
 interface PlaceFormProps {
   initialLat: number;
@@ -11,14 +12,18 @@ interface PlaceFormProps {
 }
 
 export const PlaceForm: React.FC<PlaceFormProps> = ({ initialLat, initialLng, onSuccess, onCancel }) => {
-  const { register, handleSubmit, formState: { errors } } = useHookForm<CreatePlaceRequest>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useHookForm<CreatePlaceRequest>({
     defaultValues: {
       latitude: initialLat,
       longitude: initialLng,
-      placeType: 'BAR'
-    }
+      placeType: 'BAR',
+    },
   });
-  
+
   const [loading, setLoading] = useState(false);
 
   const onSubmit = async (data: CreatePlaceRequest) => {
@@ -27,61 +32,108 @@ export const PlaceForm: React.FC<PlaceFormProps> = ({ initialLat, initialLng, on
       await placesApi.createPlace(data);
       onSuccess();
     } catch (error) {
-      console.error("Failed to create place", error);
-      alert("Error al crear el lugar");
+      console.error('Failed to create place', error);
+      alert('Error al crear el lugar');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="p-4 bg-white rounded-lg shadow-lg">
-      <h3 className="text-xl font-bold mb-4">Agregar Nuevo Lugar</h3>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Nombre</label>
-          <input 
-            {...register("name", { required: true })} 
-            className="w-full border p-2 rounded" 
-            placeholder="Ej. El Templo del Rock"
+    <div
+      style={{
+        background: 'var(--bh-bg-surface, #12121a)',
+        border: '1px solid var(--bh-border-subtle, rgba(255, 255, 255, 0.12))',
+        borderRadius: '16px',
+        padding: '1.25rem',
+        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
+        color: '#ffffff',
+        width: '320px',
+        animation: 'fadeInUp 0.2s ease-out',
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <h3
+          style={{
+            margin: 0,
+            fontSize: '1.125rem',
+            fontWeight: 700,
+            fontFamily: 'var(--bh-font-display, "Syne", sans-serif)',
+            color: '#ffffff',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+          }}
+        >
+          <MapPin size={16} color="#7c3aed" /> Agregar Lugar
+        </h3>
+        <button
+          type="button"
+          onClick={onCancel}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: '#a1a1aa',
+            cursor: 'pointer',
+            padding: '2px',
+          }}
+        >
+          <X size={16} />
+        </button>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+        <div className="form-group">
+          <label className="form-label">Nombre del lugar *</label>
+          <input
+            {...register('name', { required: true })}
+            className="form-input"
+            placeholder="Ej. Estudio Abbey Road"
           />
-          {errors.name && <span className="text-red-500 text-sm">Este campo es requerido</span>}
+          {errors.name && <span style={{ color: '#f87171', fontSize: '0.75rem' }}>Este campo es requerido</span>}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Tipo de Lugar</label>
-          <select {...register("placeType")} className="w-full border p-2 rounded">
-            <option value="BAR">Bar / Pub</option>
+        <div className="form-group">
+          <label className="form-label">Tipo de Lugar</label>
+          <select
+            {...register('placeType')}
+            className="form-input"
+            style={{ background: 'var(--bh-bg-surface-elevated, #1a1a24)' }}
+          >
+            <option value="BAR">Bar / Pub Musical</option>
             <option value="RECORDING_STUDIO">Estudio de Grabación</option>
             <option value="REHEARSAL_ROOM">Sala de Ensayo</option>
-            <option value="VENUE">Venue / Teatro</option>
-            <option value="OTHER">Otro</option>
+            <option value="VENUE">Venue / Teatro / Auditorio</option>
+            <option value="OTHER">Otro espacio</option>
           </select>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Descripción</label>
-          <textarea 
-            {...register("description")} 
-            className="w-full border p-2 rounded" 
-            placeholder="Detalles sobre el equipo, aforo, etc."
+        <div className="form-group">
+          <label className="form-label">Dirección</label>
+          <input
+            {...register('address')}
+            className="form-input"
+            placeholder="Ej. Av. Corrientes 1234"
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Dirección</label>
-          <input 
-            {...register("address")} 
-            className="w-full border p-2 rounded" 
-            placeholder="Calle Falsa 123"
+        <div className="form-group">
+          <label className="form-label">Descripción</label>
+          <textarea
+            {...register('description')}
+            rows={2}
+            className="form-input"
+            placeholder="Aforo, backline disponible, acústica..."
           />
         </div>
 
-        <div className="flex gap-2 justify-end mt-4">
-          <button type="button" onClick={onCancel} className="px-4 py-2 border rounded">Cancelar</button>
-          <button type="submit" disabled={loading} className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50">
-            {loading ? 'Guardando...' : 'Guardar Lugar'}
-          </button>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '0.25rem' }}>
+          <Button variant="ghost" size="sm" type="button" onClick={onCancel}>
+            Cancelar
+          </Button>
+          <Button size="sm" type="submit" loading={loading}>
+            Guardar
+          </Button>
         </div>
       </form>
     </div>

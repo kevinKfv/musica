@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { eventsApi } from '../../api/eventsApi';
 import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Ticket, Calendar, Plus } from 'lucide-react';
+import { Button, Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../components/ui';
 
 export const CreateEvent = () => {
   const navigate = useNavigate();
@@ -8,13 +10,13 @@ export const CreateEvent = () => {
     title: '',
     description: '',
     location: '',
-    eventDate: ''
+    eventDate: '',
   });
   const [tierData, setTierData] = useState({
     name: 'General',
     price: 0,
     currency: 'USD',
-    capacity: 100
+    capacity: 100,
   });
   const [loading, setLoading] = useState(false);
 
@@ -24,13 +26,13 @@ export const CreateEvent = () => {
     try {
       const organizerId = '11111111-1111-1111-1111-111111111111'; // Mock user ID
       const dateIso = new Date(formData.eventDate).toISOString();
-      
+
       const event = await eventsApi.createEvent({
         organizerId,
         title: formData.title,
         description: formData.description,
         location: formData.location,
-        eventDate: dateIso
+        eventDate: dateIso,
       });
 
       await eventsApi.addTicketTier(event.id, tierData);
@@ -44,97 +46,139 @@ export const CreateEvent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 p-8 flex justify-center items-start">
-      <div className="max-w-3xl w-full bg-slate-800 rounded-2xl p-8 border border-slate-700 shadow-2xl mt-10">
-        <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-rose-600 mb-6">
-          Organizar Nuevo Evento
-        </h2>
-        
-        <form onSubmit={handleSubmit} className="space-y-8">
-          <section>
-            <h3 className="text-xl font-bold border-b border-slate-700 pb-2 mb-4 text-orange-300">Datos del Evento</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="col-span-2">
-                <label className="block text-slate-300 mb-2 font-medium">Título del Concierto/Festival</label>
-                <input 
-                  type="text" required
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:border-orange-500 focus:outline-none"
-                  value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})}
-                />
-              </div>
-              <div className="col-span-2">
-                <label className="block text-slate-300 mb-2 font-medium">Descripción</label>
-                <textarea 
-                  required rows={3}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:border-orange-500 focus:outline-none"
-                  value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})}
-                />
-              </div>
-              <div>
-                <label className="block text-slate-300 mb-2 font-medium">Ubicación</label>
-                <input 
-                  type="text" required
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:border-orange-500 focus:outline-none"
-                  value={formData.location} onChange={e => setFormData({...formData, location: e.target.value})}
-                />
-              </div>
-              <div>
-                <label className="block text-slate-300 mb-2 font-medium">Fecha y Hora</label>
-                <input 
-                  type="datetime-local" required
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:border-orange-500 focus:outline-none"
-                  value={formData.eventDate} onChange={e => setFormData({...formData, eventDate: e.target.value})}
-                />
-              </div>
-            </div>
-          </section>
-
-          <section>
-            <h3 className="text-xl font-bold border-b border-slate-700 pb-2 mb-4 text-orange-300">Entradas (Aforo)</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <label className="block text-slate-300 mb-2 font-medium">Tipo</label>
-                <input 
-                  type="text" required
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:border-orange-500 focus:outline-none"
-                  value={tierData.name} onChange={e => setTierData({...tierData, name: e.target.value})}
-                />
-              </div>
-              <div>
-                <label className="block text-slate-300 mb-2 font-medium">Precio (USD)</label>
-                <input 
-                  type="number" required min="0"
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:border-orange-500 focus:outline-none"
-                  value={tierData.price} onChange={e => setTierData({...tierData, price: Number(e.target.value)})}
-                />
-              </div>
-              <div>
-                <label className="block text-slate-300 mb-2 font-medium">Capacidad Máx.</label>
-                <input 
-                  type="number" required min="1"
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:border-orange-500 focus:outline-none"
-                  value={tierData.capacity} onChange={e => setTierData({...tierData, capacity: Number(e.target.value)})}
-                />
-              </div>
-            </div>
-          </section>
-
-          <div className="pt-4 flex justify-end gap-4">
-            <button 
-              type="button" onClick={() => navigate('/events')}
-              className="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg transition-colors"
-            >
-              Cancelar
-            </button>
-            <button 
-              type="submit" disabled={loading}
-              className="px-6 py-3 bg-gradient-to-r from-orange-500 to-rose-600 hover:from-orange-600 hover:to-rose-700 text-white font-semibold rounded-lg transition-all shadow-[0_0_15px_rgba(249,115,22,0.5)] disabled:opacity-50"
-            >
-              {loading ? 'Publicando...' : 'Crear Evento'}
-            </button>
-          </div>
-        </form>
+    <div style={{ maxWidth: '760px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate('/events')}
+          icon={<ArrowLeft size={16} />}
+        >
+          Volver a Eventos
+        </Button>
       </div>
+
+      <Card>
+        <CardHeader>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+            <Ticket size={20} color="#ec4899" />
+            <CardTitle>Organizar Nuevo Concierto / Evento</CardTitle>
+          </div>
+          <CardDescription>
+            Configurá la fecha, venue y localidades con control de acceso por QR.
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div className="form-group">
+                <label className="form-label">Título del evento *</label>
+                <input
+                  type="text"
+                  required
+                  className="form-input"
+                  placeholder="Ej. Noche de Rock Alternativo - Presentación de Disco"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
+                <div className="form-group">
+                  <label className="form-label">Ubicación / Sala *</label>
+                  <input
+                    type="text"
+                    required
+                    className="form-input"
+                    placeholder="Ej. Club V, Niceto Club..."
+                    value={formData.location}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Fecha y Hora *</label>
+                  <input
+                    type="datetime-local"
+                    required
+                    className="form-input"
+                    value={formData.eventDate}
+                    onChange={(e) => setFormData({ ...formData, eventDate: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Descripción del evento</label>
+                <textarea
+                  rows={3}
+                  className="form-input"
+                  placeholder="Lineup de bandas, horarios de puertas, restricciones de edad..."
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                />
+              </div>
+            </div>
+
+            {/* Ticket Tier Section */}
+            <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '1.25rem' }}>
+              <h4 style={{ margin: '0 0 1rem', fontSize: '0.9375rem', fontWeight: 700, color: '#f4f4f5' }}>
+                Entradas & Localidades
+              </h4>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
+                <div className="form-group">
+                  <label className="form-label">Nombre del pase</label>
+                  <input
+                    type="text"
+                    required
+                    className="form-input"
+                    value={tierData.name}
+                    onChange={(e) => setTierData({ ...tierData, name: e.target.value })}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Precio (USD) *</label>
+                  <input
+                    type="number"
+                    required
+                    min="0"
+                    className="form-input"
+                    value={tierData.price}
+                    onChange={(e) => setTierData({ ...tierData, price: Number(e.target.value) })}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Aforo máximo *</label>
+                  <input
+                    type="number"
+                    required
+                    min="1"
+                    className="form-input"
+                    value={tierData.capacity}
+                    onChange={(e) => setTierData({ ...tierData, capacity: Number(e.target.value) })}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
+              <Button
+                variant="ghost"
+                type="button"
+                onClick={() => navigate('/events')}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" loading={loading} icon={<Plus size={16} />}>
+                Publicar Evento
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 };

@@ -15,10 +15,11 @@ const SocialFeed: React.FC = () => {
 
     return (
         <div style={{
-            minHeight: '100vh',
-            background: 'linear-gradient(135deg, #0a0e1a 0%, #0d1526 50%, #0a0e1a 100%)',
-            padding: '24px 16px',
-            fontFamily: "'Inter', -apple-system, sans-serif",
+            maxWidth: 1100,
+            margin: '0 auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 20,
         }}>
             {/* Header */}
             <div style={{

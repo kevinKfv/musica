@@ -8,6 +8,7 @@ import java.util.UUID;
 
 @Repository
 public interface SongRepository extends JpaRepository<Song, UUID> {
+    List<Song> findByDeletedAtIsNull();
     List<Song> findByCreatedByAndDeletedAtIsNull(UUID createdBy);
     List<Song> findByBandIdAndDeletedAtIsNull(UUID bandId);
 }

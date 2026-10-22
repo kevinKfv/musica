@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;INIT=CREATE SCHEMA IF NOT EXISTS schema_auth\;CREATE SCHEMA IF NOT EXISTS schema_users\;CREATE SCHEMA IF NOT EXISTS schema_social\;CREATE SCHEMA IF NOT EXISTS schema_marketplace\;CREATE SCHEMA IF NOT EXISTS schema_events\;CREATE SCHEMA IF NOT EXISTS schema_library\;CREATE SCHEMA IF NOT EXISTS schema_collab\;CREATE SCHEMA IF NOT EXISTS schema_chat\;CREATE SCHEMA IF NOT EXISTS schema_bands\;CREATE SCHEMA IF NOT EXISTS schema_agenda\;CREATE SCHEMA IF NOT EXISTS schema_admin\;CREATE SCHEMA IF NOT EXISTS schema_academy\;CREATE SCHEMA IF NOT EXISTS schema_places
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+  flyway:
+    enabled: false
+  modulith:
+    events:
+      jdbc-schema-initialization-enabled: true
+
+jwt:
+  secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+  expiration-ms: 900000
+  refresh-expiration-days: 7

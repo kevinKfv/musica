@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { eventsApi, Event } from '../../api/eventsApi';
 import { useNavigate } from 'react-router-dom';
-import { Calendar as CalendarIcon, MapPin } from 'lucide-react';
+import { Ticket, Calendar as CalendarIcon, MapPin, Plus, QrCode } from 'lucide-react';
+import { Button, Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../components/ui';
 
 export const EventsHome = () => {
   const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -13,75 +15,172 @@ export const EventsHome = () => {
 
   const fetchEvents = async () => {
     try {
+      setLoading(true);
       const data = await eventsApi.getAllEvents();
       setEvents(data);
     } catch (error) {
       console.error('Error fetching events:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 p-8">
-      <div className="max-w-7xl mx-auto">
-        <header className="flex justify-between items-center mb-12 border-b border-slate-800 pb-6">
-          <div>
-            <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-rose-600 mb-2">
-              Eventos & Entradas
+    <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
+      {/* Header */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '1rem',
+        }}
+      >
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+            <span
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '8px',
+                background: 'rgba(236, 72, 153, 0.15)',
+                color: '#ec4899',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Ticket size={18} />
+            </span>
+            <h1
+              style={{
+                fontFamily: 'var(--bh-font-display, "Syne", sans-serif)',
+                fontSize: '1.75rem',
+                fontWeight: 800,
+                color: '#ffffff',
+                margin: 0,
+              }}
+            >
+              Eventos & Conciertos
             </h1>
-            <p className="text-slate-400 text-lg">Descubre conciertos y adquiere tus tickets con código QR.</p>
           </div>
-          <div className="flex gap-4">
-            <button 
-              onClick={() => navigate('/events/checkin')}
-              className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold rounded-full transition-colors border border-slate-700"
-            >
-              Check-in (Staff)
-            </button>
-            <button 
-              onClick={() => navigate('/events/create')}
-              className="px-6 py-3 bg-gradient-to-r from-orange-500 to-rose-600 hover:from-orange-600 hover:to-rose-700 text-white font-semibold rounded-full transition-all shadow-[0_0_15px_rgba(249,115,22,0.4)]"
-            >
-              Organizar Evento
-            </button>
-          </div>
-        </header>
+          <p style={{ margin: 0, color: 'var(--bh-text-secondary, #a1a1aa)', fontSize: '0.875rem' }}>
+            Descubrí fechas en vivo, festivales y gestioná entradas con tickets QR.
+          </p>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {events.length === 0 ? (
-            <div className="col-span-full text-center text-slate-500 py-12">
-              No hay eventos publicados por el momento.
-            </div>
-          ) : (
-            events.map(event => (
-              <div 
-                key={event.id}
-                onClick={() => navigate(`/events/${event.id}`)}
-                className="group bg-slate-800 rounded-2xl overflow-hidden border border-slate-700 hover:border-orange-500 transition-all cursor-pointer hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(249,115,22,0.2)] flex flex-col"
-              >
-                <div className="h-48 bg-slate-700 bg-[url('https://images.unsplash.com/photo-1459749411175-04bf5292ceea?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center" />
-                <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="text-2xl font-bold mb-3 group-hover:text-orange-400 transition-colors">
-                    {event.title}
-                  </h3>
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center text-slate-400 text-sm">
-                      <CalendarIcon className="w-4 h-4 mr-2 text-rose-400" />
-                      {new Date(event.eventDate).toLocaleString()}
-                    </div>
-                    <div className="flex items-center text-slate-400 text-sm">
-                      <MapPin className="w-4 h-4 mr-2 text-rose-400" />
-                      {event.location}
-                    </div>
-                  </div>
-                  <p className="text-slate-400 line-clamp-2 mt-auto">
-                    {event.description}
-                  </p>
-                </div>
-              </div>
-            ))
-          )}
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <Button
+            variant="secondary"
+            onClick={() => navigate('/events/checkin')}
+            icon={<QrCode size={16} />}
+          >
+            Validar Tickets
+          </Button>
+          <Button
+            onClick={() => navigate('/events/create')}
+            icon={<Plus size={16} />}
+          >
+            Publicar Fecha
+          </Button>
         </div>
       </div>
+
+      {/* Events Grid */}
+      {loading ? (
+        <Card style={{ padding: '3rem', textAlign: 'center', color: '#a1a1aa' }}>
+          <div className="spinner" style={{ margin: '0 auto 12px' }} />
+          Cargando cartelera de eventos...
+        </Card>
+      ) : events.length === 0 ? (
+        <Card
+          style={{
+            padding: '3.5rem 2rem',
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '1rem',
+          }}
+        >
+          <div
+            style={{
+              width: '64px',
+              height: '64px',
+              borderRadius: '20px',
+              background: 'rgba(236, 72, 153, 0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#ec4899',
+            }}
+          >
+            <Ticket size={32} />
+          </div>
+          <div>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#f4f4f5', margin: '0 0 6px' }}>
+              No hay eventos publicados por ahora
+            </h3>
+            <p style={{ fontSize: '0.875rem', color: '#a1a1aa', margin: 0, maxWidth: '380px' }}>
+              Publicá el próximo show de tu banda o concierto para habilitar venta de entradas anticipadas.
+            </p>
+          </div>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => navigate('/events/create')}
+            icon={<Plus size={14} />}
+          >
+            Publicar mi primer show
+          </Button>
+        </Card>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.25rem' }}>
+          {events.map((event) => (
+            <Card
+              key={event.id}
+              onClick={() => navigate(`/events/${event.id}`)}
+              style={{
+                cursor: 'pointer',
+                transition: 'transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease',
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                style={{
+                  height: '140px',
+                  background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.3) 0%, rgba(124, 58, 237, 0.3) 100%), url("https://images.unsplash.com/photo-1459749411175-04bf5292ceea?q=80&w=1000&auto=format&fit=crop")',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
+              />
+              <CardHeader style={{ padding: '1.25rem' }}>
+                <CardTitle style={{ fontSize: '1.125rem' }}>{event.title}</CardTitle>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8125rem', color: '#f472b6' }}>
+                    <CalendarIcon size={14} />
+                    <span>{new Date(event.eventDate).toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+                  </div>
+                  {event.location && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8125rem', color: '#a1a1aa' }}>
+                      <MapPin size={14} color="#71717a" />
+                      <span>{event.location}</span>
+                    </div>
+                  )}
+                </div>
+                {event.description && (
+                  <CardDescription style={{ marginTop: '8px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    {event.description}
+                  </CardDescription>
+                )}
+              </CardHeader>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

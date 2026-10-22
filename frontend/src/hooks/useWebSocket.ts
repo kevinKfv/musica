@@ -60,7 +60,7 @@ export const useWebSocket = (conversationId: string | null) => {
     }
   }, [conversationId]);
 
-  const setInitialMessages = useCallback((history: Message[]) => {
+  const setInitialMessages = useCallback((history: Message[] | ((prev: Message[]) => Message[])) => {
     setMessages(history);
   }, []);
 

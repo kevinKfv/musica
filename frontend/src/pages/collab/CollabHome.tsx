@@ -2,61 +2,168 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { collabApi } from '../../api/collabApi';
 import type { CollabProject } from '../../api/collabApi';
-import { PlusCircle, Music, Folder } from 'lucide-react';
+import { Layers, Plus, Folder, Sliders } from 'lucide-react';
+import { Button, Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../components/ui';
 
 export const CollabHome = () => {
-    const [projects, setProjects] = useState<CollabProject[]>([]);
-    const [loading, setLoading] = useState(true);
+  const [projects, setProjects] = useState<CollabProject[]>([]);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        collabApi.getProjects()
-            .then(setProjects)
-            .finally(() => setLoading(false));
-    }, []);
+  useEffect(() => {
+    collabApi
+      .getProjects()
+      .then(setProjects)
+      .finally(() => setLoading(false));
+  }, []);
 
-    return (
-        <div className="min-h-screen bg-slate-950 p-8 text-white">
-            <div className="max-w-6xl mx-auto">
-                <header className="flex justify-between items-center mb-8 border-b border-slate-800 pb-6">
-                    <div>
-                        <h1 className="text-3xl font-bold">Estudio Colaborativo</h1>
-                        <p className="text-slate-400 mt-2">Gestiona tus proyectos multipista y colabora con otros músicos.</p>
-                    </div>
-                    <button className="bg-blue-600 hover:bg-blue-500 transition px-4 py-2 rounded-lg flex items-center gap-2">
-                        <PlusCircle className="w-5 h-5" />
-                        Nuevo Proyecto
-                    </button>
-                </header>
-
-                {loading ? (
-                    <div className="text-center text-slate-500 py-12">Cargando proyectos...</div>
-                ) : projects.length === 0 ? (
-                    <div className="text-center bg-slate-900 rounded-xl p-12 border border-slate-800">
-                        <Folder className="w-16 h-16 mx-auto mb-4 text-slate-600" />
-                        <h2 className="text-xl font-semibold mb-2">No tienes proyectos</h2>
-                        <p className="text-slate-400">Crea tu primer proyecto para empezar a colaborar.</p>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {projects.map(project => (
-                            <Link 
-                                to={`/collab/${project.id}`} 
-                                key={project.id}
-                                className="bg-slate-900 border border-slate-800 rounded-xl p-6 hover:border-blue-500/50 transition block group"
-                            >
-                                <div className="flex items-start justify-between mb-4">
-                                    <div className="bg-slate-800 p-3 rounded-lg group-hover:bg-blue-600/20 transition">
-                                        <Music className="w-6 h-6 text-blue-400 group-hover:text-blue-300" />
-                                    </div>
-                                    <span className="text-xs bg-slate-800 px-2 py-1 rounded text-slate-300">{project.status}</span>
-                                </div>
-                                <h3 className="text-xl font-bold mb-2 truncate">{project.title}</h3>
-                                <p className="text-slate-400 text-sm line-clamp-2">{project.description}</p>
-                            </Link>
-                        ))}
-                    </div>
-                )}
-            </div>
+  return (
+    <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
+      {/* Header */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '1rem',
+        }}
+      >
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+            <span
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '8px',
+                background: 'rgba(6, 182, 212, 0.15)',
+                color: '#06b6d4',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Layers size={18} />
+            </span>
+            <h1
+              style={{
+                fontFamily: 'var(--bh-font-display, "Syne", sans-serif)',
+                fontSize: '1.75rem',
+                fontWeight: 800,
+                color: '#ffffff',
+                margin: 0,
+              }}
+            >
+              Estudio Virtual & Colaboración
+            </h1>
+          </div>
+          <p style={{ margin: 0, color: 'var(--bh-text-secondary, #a1a1aa)', fontSize: '0.875rem' }}>
+            Grabación multipista colaborativa en tiempo real con stems y sincronización.
+          </p>
         </div>
-    );
+
+        <Button icon={<Plus size={16} />}>
+          Nuevo Proyecto DAW
+        </Button>
+      </div>
+
+      {/* Projects Grid */}
+      {loading ? (
+        <Card style={{ padding: '3rem', textAlign: 'center', color: '#a1a1aa' }}>
+          <div className="spinner" style={{ margin: '0 auto 12px' }} />
+          Cargando sesiones de estudio...
+        </Card>
+      ) : projects.length === 0 ? (
+        <Card
+          style={{
+            padding: '3.5rem 2rem',
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '1rem',
+          }}
+        >
+          <div
+            style={{
+              width: '64px',
+              height: '64px',
+              borderRadius: '20px',
+              background: 'rgba(6, 182, 212, 0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#06b6d4',
+            }}
+          >
+            <Sliders size={32} />
+          </div>
+          <div>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: '#f4f4f5', margin: '0 0 6px' }}>
+              No tenés sesiones activas
+            </h3>
+            <p style={{ fontSize: '0.875rem', color: '#a1a1aa', margin: 0, maxWidth: '380px' }}>
+              Iniciá un nuevo proyecto multipista para invitar a tus compañeros de banda o sesionistas remotos.
+            </p>
+          </div>
+          <Button
+            variant="secondary"
+            size="sm"
+            icon={<Plus size={14} />}
+          >
+            Crear primera sesión
+          </Button>
+        </Card>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.25rem' }}>
+          {projects.map((project) => (
+            <Link
+              to={`/collab/${project.id}`}
+              key={project.id}
+              style={{ textDecoration: 'none' }}
+            >
+              <Card
+                style={{
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  height: '100%',
+                }}
+              >
+                <CardHeader style={{ padding: '1.25rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '8px' }}>
+                    <span
+                      style={{
+                        padding: '2px 8px',
+                        borderRadius: '999px',
+                        fontSize: '0.7rem',
+                        fontWeight: 600,
+                        background: 'rgba(6, 182, 212, 0.15)',
+                        color: '#22d3ee',
+                        border: '1px solid rgba(6, 182, 212, 0.3)',
+                      }}
+                    >
+                      {project.status}
+                    </span>
+                    <span style={{ fontSize: '0.75rem', color: '#71717a' }}>DAW Session</span>
+                  </div>
+                  <CardTitle style={{ fontSize: '1.125rem' }}>{project.title}</CardTitle>
+                  {project.description && (
+                    <CardDescription style={{ marginTop: '6px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      {project.description}
+                    </CardDescription>
+                  )}
+                </CardHeader>
+                <CardContent style={{ padding: '0 1.25rem 1.25rem', marginTop: 'auto', borderTop: '1px solid rgba(255, 255, 255, 0.06)', paddingTop: '12px' }}>
+                  <span style={{ fontSize: '0.8125rem', color: '#22d3ee', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    Abrir mesa de mezcla &rarr;
+                  </span>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 };

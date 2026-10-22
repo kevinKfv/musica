@@ -1,42 +1,68 @@
-name: BandHub CI
+name: BandHub CI / CD Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "develop" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "develop" ]
 
 jobs:
-  build-backend:
+  # ── Backend CI ──────────────────────────────────────────────
+  backend:
+    name: Backend — Build & Test (Spring Boot 3 + Java 21)
     runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up JDK 21
-      uses: actions/setup-java@v4
-      with:
-        java-version: '21'
-        distribution: 'temurin'
-        
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v3
-        
-    - name: Build and Test with Gradle
-      working-directory: ./backend
-      run: ./gradlew build
 
-  build-frontend:
-    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Use Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
-        
-    - name: Build Frontend
-      working-directory: ./frontend
-      run: |
-        npm ci
-        npm run build
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Grant execute permission for gradlew
+        run: |
+          sed -i 's/\r$//' backend/gradlew
+          chmod +x backend/gradlew
+
+      - name: Build and run tests with Gradle
+        working-directory: backend
+        run: ./gradlew test --no-daemon
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-results
+          path: backend/build/reports/tests/test/
+
+  # ── Frontend CI ─────────────────────────────────────────────
+  frontend:
+    name: Frontend — Build, Lint & Test (React 19 + TypeScript)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: frontend/package.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm install
+
+      - name: Run Vitest unit tests
+        working-directory: frontend
+        run: npm run test
+
+      - name: Build production bundle
+        working-directory: frontend
+        run: npm run build

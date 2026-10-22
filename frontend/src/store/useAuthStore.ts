@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 interface User {
   email: string;
@@ -11,9 +12,16 @@ interface AuthState {
   logout: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  accessToken: null,
-  setAuth: (user, token) => set({ user, accessToken: token }),
-  logout: () => set({ user: null, accessToken: null }),
-}));
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      user: null,
+      accessToken: null,
+      setAuth: (user, token) => set({ user, accessToken: token }),
+      logout: () => set({ user: null, accessToken: null }),
+    }),
+    {
+      name: 'bandhub-auth-storage',
+    }
+  )
+);

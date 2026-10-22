@@ -26,10 +26,12 @@ export const CommentList: React.FC<CommentListProps> = ({ postId, comments }) =>
                     {comments.map((comment) => (
                         <div key={comment.id} className="bg-slate-700/30 p-3 rounded-lg flex gap-3">
                             <div className="w-8 h-8 rounded-full bg-slate-600 flex items-center justify-center text-xs font-bold shrink-0">
-                                {comment.authorId.substring(0, 2).toUpperCase()}
+                                {(comment.authorEmail || 'US').substring(0, 2).toUpperCase()}
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-slate-200">Usuario {comment.authorId.substring(0, 4)}</p>
+                                <p className="text-sm font-medium text-slate-200">
+                                    {comment.authorEmail ? comment.authorEmail.split('@')[0] : 'Usuario'}
+                                </p>
                                 <p className="text-sm text-slate-300 mt-1">{comment.content}</p>
                             </div>
                         </div>

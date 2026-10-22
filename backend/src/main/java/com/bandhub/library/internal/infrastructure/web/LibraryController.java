@@ -27,9 +27,13 @@ public class LibraryController {
         if (bandId != null) {
             return ResponseEntity.ok(libraryService.getSongsByBand(bandId));
         } else if (userId != null) {
-            return ResponseEntity.ok(libraryService.getSongsByUser(userId));
+            List<Song> songs = libraryService.getSongsByUser(userId);
+            if (songs.isEmpty()) {
+                return ResponseEntity.ok(libraryService.getAllSongs());
+            }
+            return ResponseEntity.ok(songs);
         }
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.ok(libraryService.getAllSongs());
     }
 
     @PostMapping

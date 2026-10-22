@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Song } from '../../../api/libraryApi';
 import UploadResourceModal from './UploadResourceModal';
+import { ArrowLeft, Music, FileText, Upload, Download, Disc } from 'lucide-react';
+import { Button, Card, CardHeader, CardTitle, CardDescription, CardContent } from '../../../components/ui';
 
 interface SongDetailViewProps {
   song: Song;
@@ -12,84 +14,183 @@ const SongDetailView: React.FC<SongDetailViewProps> = ({ song, userId, onBack })
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4 border-b border-gray-200 pb-4">
-        <button 
-          onClick={onBack}
-          className="text-gray-500 hover:text-gray-800 bg-gray-100 px-3 py-1 rounded"
-        >
-          &larr; Volver
-        </button>
-        <div>
-          <h2 className="text-3xl font-bold text-gray-800">{song.title}</h2>
-          <p className="text-gray-600">{song.artist || 'Artista desconocido'} • {song.genre || 'Sin género'}</p>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
+      {/* Header */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '1rem',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          paddingBottom: '1.25rem',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onBack}
+            icon={<ArrowLeft size={16} />}
+          >
+            Volver
+          </Button>
+          <div>
+            <h2
+              style={{
+                fontFamily: 'var(--bh-font-display, "Syne", sans-serif)',
+                fontSize: '1.75rem',
+                fontWeight: 800,
+                color: '#ffffff',
+                margin: '0 0 4px',
+              }}
+            >
+              {song.title}
+            </h2>
+            <p style={{ margin: 0, color: 'var(--bh-text-secondary, #a1a1aa)', fontSize: '0.875rem' }}>
+              {song.artist || 'Artista independiente'} • {song.genre || 'Sin género asignado'}
+            </p>
+          </div>
         </div>
-      </div>
 
-      <div className="flex justify-between items-center">
-        <h3 className="text-xl font-semibold">Recursos</h3>
-        <button 
+        <Button
           onClick={() => setIsModalOpen(true)}
-          className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded shadow text-sm"
+          icon={<Upload size={16} />}
         >
-          + Subir Archivo
-        </button>
+          Subir Recurso
+        </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white p-4 rounded-lg shadow border border-gray-100">
-          <h4 className="font-bold text-lg mb-4 text-purple-700 border-b pb-2">Pistas de Audio</h4>
-          {(!song.audioTracks || song.audioTracks.length === 0) ? (
-            <p className="text-gray-500 text-sm">No hay audios disponibles.</p>
-          ) : (
-            <ul className="space-y-4">
-              {song.audioTracks.map(track => (
-                <li key={track.id} className="bg-gray-50 p-3 rounded border">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="font-semibold text-sm">{track.trackType}</span>
-                    <span className="text-xs text-gray-500 border border-gray-300 rounded px-2 py-0.5">v{track.versionNumber}</span>
-                  </div>
-                  <audio controls className="w-full h-8" src={track.fileUrl}>
-                    Tu navegador no soporta el elemento de audio.
-                  </audio>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <div className="bg-white p-4 rounded-lg shadow border border-gray-100">
-          <h4 className="font-bold text-lg mb-4 text-purple-700 border-b pb-2">Partituras</h4>
-          {(!song.sheetMusics || song.sheetMusics.length === 0) ? (
-            <p className="text-gray-500 text-sm">No hay partituras disponibles.</p>
-          ) : (
-            <ul className="space-y-3">
-              {song.sheetMusics.map(sheet => (
-                <li key={sheet.id} className="flex justify-between items-center bg-gray-50 p-3 rounded border hover:bg-gray-100 transition">
-                  <div>
-                    <p className="font-semibold">{sheet.instrument}</p>
-                    <p className="text-xs text-gray-500">{sheet.formatType} - v{sheet.versionNumber}</p>
-                  </div>
-                  <a 
-                    href={sheet.fileUrl} 
-                    target="_blank" 
-                    rel="noreferrer"
-                    className="text-purple-600 hover:text-purple-800 text-sm font-medium bg-purple-100 px-3 py-1 rounded-full"
+      {/* Panels Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+        {/* Pistas de Audio */}
+        <Card>
+          <CardHeader>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Music size={18} color="#a78bfa" />
+              <CardTitle>Pistas de Audio & Stems</CardTitle>
+            </div>
+            <CardDescription>Grabaciones, maquetas y mezclas del tema</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {!song.audioTracks || song.audioTracks.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '2rem', color: '#71717a', fontSize: '0.875rem' }}>
+                No hay pistas de audio subidas para esta canción.
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {song.audioTracks.map((track) => (
+                  <div
+                    key={track.id}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.03)',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      borderRadius: '10px',
+                      padding: '0.875rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.5rem',
+                    }}
                   >
-                    Ver / Descargar
-                  </a>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontWeight: 600, fontSize: '0.875rem', color: '#f4f4f5' }}>
+                        {track.trackType}
+                      </span>
+                      <span
+                        style={{
+                          background: 'rgba(124, 58, 237, 0.15)',
+                          color: '#a78bfa',
+                          border: '1px solid rgba(124, 58, 237, 0.3)',
+                          padding: '1px 6px',
+                          borderRadius: '6px',
+                          fontSize: '0.75rem',
+                        }}
+                      >
+                        v{track.versionNumber}
+                      </span>
+                    </div>
+                    <audio controls style={{ width: '100%', height: '36px', outline: 'none' }} src={track.fileUrl}>
+                      Tu navegador no soporta reproducción de audio.
+                    </audio>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Partituras */}
+        <Card>
+          <CardHeader>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <FileText size={18} color="#ec4899" />
+              <CardTitle>Partituras & Tabs</CardTitle>
+            </div>
+            <CardDescription>Archivos PDF, MusicXML o tablaturas de acordes</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {!song.sheetMusics || song.sheetMusics.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '2rem', color: '#71717a', fontSize: '0.875rem' }}>
+                No hay partituras subidas para esta canción.
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {song.sheetMusics.map((sheet) => (
+                  <div
+                    key={sheet.id}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.03)',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      borderRadius: '10px',
+                      padding: '0.875rem',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: '0.875rem', color: '#f4f4f5' }}>
+                        {sheet.instrument}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: '#a1a1aa' }}>
+                        {sheet.formatType} • v{sheet.versionNumber}
+                      </div>
+                    </div>
+                    <a
+                      href={sheet.fileUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        background: 'rgba(236, 72, 153, 0.15)',
+                        color: '#f472b6',
+                        border: '1px solid rgba(236, 72, 153, 0.3)',
+                        padding: '4px 10px',
+                        borderRadius: '6px',
+                        fontSize: '0.8125rem',
+                        fontWeight: 600,
+                        textDecoration: 'none',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                      }}
+                    >
+                      <Download size={14} /> Abrir
+                    </a>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {isModalOpen && (
-        <UploadResourceModal 
-          songId={song.id} 
-          userId={userId} 
-          onClose={() => setIsModalOpen(false)} 
+        <UploadResourceModal
+          songId={song.id}
+          userId={userId}
+          onClose={() => setIsModalOpen(false)}
         />
       )}
     </div>

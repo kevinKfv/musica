@@ -5,6 +5,8 @@ Thumbs.db
 
 # IDE / Editor
 .idea/
+.vscode/
+.agents/
 *.iml
 *.iws
 *.ipr
