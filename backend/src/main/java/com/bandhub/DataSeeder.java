@@ -227,7 +227,7 @@ public class DataSeeder implements CommandLineRunner {
         sheet.setInstrument(instrument);
         sheet.setFormatType(format);
         sheet.setFileUrl("https://raw.githubusercontent.com/DietrichGebert/ponytail/main/README.md");
-        sheet.setUploadedBy(userId);
+        sheet.setCreatedBy(userId);
         song.addSheetMusic(sheet);
 
         songRepository.save(song);
