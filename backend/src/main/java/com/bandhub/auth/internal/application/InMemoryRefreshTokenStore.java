@@ -1,18 +1,17 @@
 package com.bandhub.auth.internal.application;
 
-import org.springframework.context.annotation.Profile;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 
 /**
- * Implementación en memoria del RefreshTokenStore para el perfil local.
+ * Implementación en memoria del RefreshTokenStore cuando Redis no está habilitado.
  * No requiere Redis — los tokens se almacenan en un ConcurrentHashMap.
- * Los tokens se pierden al reiniciar el servidor (comportamiento esperado en dev).
  */
 @Component
-@Profile("local")
+@ConditionalOnMissingBean(RefreshTokenStore.class)
 public class InMemoryRefreshTokenStore implements RefreshTokenStore {
 
     private final Map<String, String> store = new ConcurrentHashMap<>();
