@@ -1,16 +1,18 @@
 package com.bandhub.auth.internal.application;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 
 /**
- * Implementación Redis del RefreshTokenStore para producción con Redis.
- * Los tokens se almacenan con TTL y se revocan automáticamente.
+ * Implementación Redis del RefreshTokenStore para entornos con Redis.
+ * Se utiliza con prioridad (@Primary) cuando spring.data.redis.enabled=true.
  */
 @Component
+@Primary
 @ConditionalOnProperty(name = "spring.data.redis.enabled", havingValue = "true")
 public class RedisRefreshTokenStore implements RefreshTokenStore {
 
