@@ -28,14 +28,16 @@ spring:
       jdbc-schema-initialization-enabled: true
 
   autoconfigure:
-    exclude: ${SPRING_AUTOCONFIGURE_EXCLUDE:org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration,org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration}
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.redis.RedisHealthContributorAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.redis.RedisReactiveHealthContributorAutoConfiguration
 
-  data:
+management:
+  health:
     redis:
-      enabled: ${SPRING_DATA_REDIS_ENABLED:false}
-      host: ${SPRING_DATA_REDIS_HOST:${REDISHOST:localhost}}
-      port: ${SPRING_DATA_REDIS_PORT:${REDISPORT:6379}}
-      password: ${SPRING_DATA_REDIS_PASSWORD:${REDISPASSWORD:}}
+      enabled: false
 
 springdoc:
   api-docs:
