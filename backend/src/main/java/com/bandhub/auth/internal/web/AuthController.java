@@ -7,10 +7,14 @@ import com.bandhub.auth.internal.web.dto.AuthResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
 import java.util.Collections;
 
 @RestController
@@ -19,6 +23,12 @@ public class AuthController {
 
     private final AuthApplicationService authService;
     private final TokenProviderService tokenProviderService;
+
+    @Value("${cookie.secure:true}")
+    private boolean cookieSecure;
+
+    @Value("${cookie.same-site:None}")
+    private String cookieSameSite;
 
     public AuthController(AuthApplicationService authService, TokenProviderService tokenProviderService) {
         this.authService = authService;
@@ -71,14 +81,13 @@ public class AuthController {
 
     private void setRefreshTokenCookie(HttpServletResponse response, String email) {
         String newRefreshToken = tokenProviderService.generateRefreshToken(email);
-        Cookie cookie = new Cookie("refreshToken", newRefreshToken);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(false);
-        cookie.setPath("/api/v1/auth"); // Restrict to auth endpoints
-        cookie.setMaxAge(7 * 24 * 60 * 60); // 7 days
-        // Note: SameSite cannot be set via javax.servlet.http.Cookie in old API, 
-        // but Spring Boot 3 has alternatives or we can set Header directly.
-        // For simplicity we use the basic Cookie object and add Header manually if needed.
-        response.addCookie(cookie);
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", newRefreshToken)
+                .httpOnly(true)
+                .secure(cookieSecure)
+                .sameSite(cookieSameSite)
+                .path("/api/v1/auth")
+                .maxAge(Duration.ofDays(7))
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 }

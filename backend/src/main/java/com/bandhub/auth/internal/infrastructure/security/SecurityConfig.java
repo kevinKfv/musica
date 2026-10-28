@@ -77,7 +77,7 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
-    @org.springframework.beans.factory.annotation.Value("${cors.allowed-origins:http://localhost:[*],http://127.0.0.1:[*],https://*.up.railway.app,https://*.railway.app}")
+    @org.springframework.beans.factory.annotation.Value("${cors.allowed-origins:http://localhost:[*],http://127.0.0.1:[*],https://*.pages.dev,https://*.onrender.com,https://*.up.railway.app,https://*.railway.app}")
     private String allowedOrigins;
 
     @Bean

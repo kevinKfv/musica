@@ -1,0 +1,76 @@
+services:
+  # -------------------------------------------------------------
+  # Backend Web Service (Spring Boot en Docker)
+  # -------------------------------------------------------------
+  - type: web
+    name: bandhub-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    region: oregon
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: PGHOST
+        fromDatabase:
+          name: bandhub-db
+          property: host
+      - key: PGPORT
+        fromDatabase:
+          name: bandhub-db
+          property: port
+      - key: PGDATABASE
+        fromDatabase:
+          name: bandhub-db
+          property: database
+      - key: PGUSER
+        fromDatabase:
+          name: bandhub-db
+          property: user
+      - key: PGPASSWORD
+        fromDatabase:
+          name: bandhub-db
+          property: password
+      - key: REDISHOST
+        fromService:
+          type: pserv
+          name: bandhub-redis
+          property: host
+      - key: REDISPORT
+        fromService:
+          type: pserv
+          name: bandhub-redis
+          property: port
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://*.pages.dev,http://localhost:5173
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: COOKIE_SAME_SITE
+        value: None
+
+  # -------------------------------------------------------------
+  # Redis (Servicio privado Docker - Free tier en Render)
+  # -------------------------------------------------------------
+  - type: pserv
+    name: bandhub-redis
+    runtime: image
+    image:
+      url: redis:7-alpine
+    plan: free
+    region: oregon
+
+# -----------------------------------------------------------------
+# Base de Datos PostgreSQL
+# -----------------------------------------------------------------
+databases:
+  - name: bandhub-db
+    databaseName: bandhub_db
+    user: bandhub_user
+    plan: free
+    region: oregon

@@ -3,6 +3,17 @@ import { Client, IMessage } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { Message } from '../api/chatApi';
 
+const getWebSocketUrl = () => {
+  if (import.meta.env.VITE_WS_URL) {
+    return import.meta.env.VITE_WS_URL;
+  }
+  const apiUrl = import.meta.env.VITE_API_URL;
+  if (apiUrl) {
+    return apiUrl.replace(/\/api\/v1\/?$/, '') + '/ws';
+  }
+  return 'http://localhost:8080/ws';
+};
+
 export const useWebSocket = (conversationId: string | null) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [connected, setConnected] = useState(false);
@@ -15,10 +26,7 @@ export const useWebSocket = (conversationId: string | null) => {
     setMessages([]);
 
     const client = new Client({
-      // We assume backend is running on 8080 and API routes are proxied, 
-      // but for sockjs it's better to provide full URL if not proxied, 
-      // or just /ws if proxied. Let's use standard full URL for safety in dev.
-      webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+      webSocketFactory: () => new SockJS(getWebSocketUrl()),
       reconnectDelay: 5000,
       onConnect: () => {
         setConnected(true);
