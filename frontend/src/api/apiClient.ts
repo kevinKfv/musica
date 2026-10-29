@@ -3,7 +3,8 @@ import { useAuthStore } from '../store/useAuthStore';
 
 // En dev: Vite proxea /api → http://backend:8080
 // En prod: nginx proxea /api → http://backend:8080
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1';
+const rawUrl = (import.meta.env.VITE_API_URL || '/api/v1').replace(/\/+$/, '');
+const API_BASE_URL = rawUrl.endsWith('/api/v1') ? rawUrl : `${rawUrl}/api/v1`;
 
 
 export const apiClient = axios.create({
@@ -29,8 +30,11 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // If error is 401 and we haven't retried yet
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Do not attempt refresh on auth endpoints (login/register/refresh)
+    const isAuthEndpoint = originalRequest?.url?.includes('/auth/');
+
+    // If error is 401 and we haven't retried yet and not already an auth endpoint
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       originalRequest._retry = true;
 
       try {
